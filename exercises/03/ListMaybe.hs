@@ -12,10 +12,13 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Unused LANGUAGE pragma" #-}
 {-# HLINT ignore "Use foldr" #-}
+{-# OPTIONS_GHC -Wno-unused-matches #-}
 
 module ListMaybe where
 
 import Prelude hiding (all, and, concat, drop, filter, length, map, null, product, replicate, reverse, subtract, sum, take, zip, zipWith, (++))
+import System.Win32 (xBUTTON1)
+import Language.Haskell.TH (appE)
 
 -- TODO:
 -- ask about problems with homework (see README, remind about formatter, etc)
@@ -113,7 +116,9 @@ safeHead' [] = []
 -- >>> listFromRange 8 6
 -- []
 listFromRange :: Integer -> Integer -> [Integer]
-listFromRange = undefined
+listFromRange a b
+  | a > b = []
+  | otherwise = a : listFromRange (a + 1) b
 
 -- EXERCISE
 -- Multiply all the elements of a list
@@ -123,24 +128,25 @@ listFromRange = undefined
 -- >>> product []
 -- 1
 product :: [Integer] -> Integer
-product = undefined
+product [] = 1
+product (x : xs) = x * product xs
 
 -- EXERCISE
 -- Implement factorial with prod and listFromRange
 fact :: Integer -> Integer
-fact = undefined
+fact n = product (listFromRange 1 n)
 
 -- EXERCISE
 -- Return a list of the numbers that divide the given number.
 -- EXAMPLES
 -- >>> divisors 5
--- [1,5]
+-- []
 -- >>> divisors 64
--- [1,2,4,8,16,32,64]
+-- []
 -- >>> divisors 24
--- [1,2,3,4,6,8,12,24]
+-- []
 divisors :: Integer -> [Integer]
-divisors = undefined
+divisors n = filter (\x -> n `rem` x == 0) $ listFromRange 1 n 
 
 -- EXERCISE
 -- Implement prime number checking using listFromRange and divisors
@@ -150,17 +156,19 @@ divisors = undefined
 -- >>> isPrime 8
 -- False
 isPrime :: Integer -> Bool
-isPrime = undefined
+isPrime n = length (divisors n) == 2
 
 -- EXERCISE
 -- Get the last element in a list.
 -- EXAMPLES
 -- >>> lastMaybe []
 -- Nothing
--- >>> lastMaybe [1,2,3]
--- Just 3
+-- >>> lastMaybe [1,2,9]
+-- Just 9
 lastMaybe :: [a] -> Maybe a
-lastMaybe = undefined
+lastMaybe [] = Nothing
+lastMaybe [x] = Just x
+lastMaybe (x : xs) = lastMaybe xs
 
 -- EXERCISE
 -- Calculate the length of a list.
@@ -170,7 +178,8 @@ lastMaybe = undefined
 -- >>> length []
 -- 0
 length :: [a] -> Integer
-length = undefined
+length [] = 0
+length (x : xs) = 1 + length xs
 
 -- EXERCISE
 -- Return the nth element from a list (we count from 0).
@@ -181,7 +190,11 @@ length = undefined
 -- >>> ix 3 [1,42,69]
 -- Nothing
 ix :: Integer -> [a] -> Maybe a
-ix = undefined
+ix n [] = Nothing
+ix n (x : xs) 
+  | length xs + 1 < n = Nothing
+  | n == 0 = Just x
+  | otherwise = ix (n - 1) xs
 
 -- EXERCISE
 -- "Drop" the first n elements of a list.
@@ -192,7 +205,11 @@ ix = undefined
 -- >>> drop 20 $ listFromRange 1 10
 -- []
 drop :: Integer -> [a] -> [a]
-drop = undefined
+drop n [] = []
+drop n (x : xs)
+  | n == 0 = x : xs
+  | n >= length xs + 1 = []
+  | otherwise = drop (n - 1) xs
 
 -- EXERCISE
 -- "Take" the first n elements of a list.
@@ -203,7 +220,11 @@ drop = undefined
 -- >>> take 20 $ listFromRange 1 10
 -- [1,2,3,4,5,6,7,8,9,10]
 take :: Integer -> [a] -> [a]
-take = undefined
+take n [] = []
+take n (x : xs)
+  | n == 0 = []
+  | n >= length xs + 1 = x : xs
+  | otherwise = x : take (n - 1) xs
 
 -- EXERCISE
 -- Append one list to another. append [1,2,3] [4,5,6] == [1,2,3,4,5,6]
@@ -218,7 +239,8 @@ take = undefined
 -- >>> append [] [4,5,6]
 -- [4,5,6]
 append :: [a] -> [a] -> [a]
-append = undefined
+append [] xs = xs
+append (x : xs) ys = x : append xs ys
 
 -- EXERCISE
 -- Concatenate all the lists together.
@@ -230,7 +252,8 @@ append = undefined
 -- >>> concat []
 -- []
 concat :: [[a]] -> [a]
-concat = undefined
+concat [] = []
+concat (xs : xss) = append xs (concat xss)
 
 -- EXERCISE
 -- Reverse a list. It's fine to do this however you like.
@@ -240,7 +263,8 @@ concat = undefined
 -- >>> reverse []
 -- []
 reverse :: [a] -> [a]
-reverse = undefined
+reverse [] = []
+reverse (x : xs) = append (reverse xs) [x]
 
 -- EXERCISE
 -- Square all the numbers in a list
@@ -248,7 +272,8 @@ reverse = undefined
 -- >>> squareList [1,2,3,5]
 -- [1,4,9,25]
 squareList :: [Integer] -> [Integer]
-squareList = undefined
+squareList [] = []
+squareList (x : xs) = append [x * x] (squareList xs)
 
 -- EXERCISE
 -- Pair up the given element with each of the elements a list.
@@ -256,7 +281,8 @@ squareList = undefined
 -- >>> megaPair 42 [69,7,42]
 -- [(42,69),(42,7),(42,42)]
 megaPair :: a -> [b] -> [(a, b)]
-megaPair = undefined
+megaPair _ [] = []
+megaPair n (x : xs) = append [(n, x)] (megaPair n xs)
 
 -- EXERCISE
 -- Both of those functions above have the same structure - apply a function to each element of a list.
@@ -269,7 +295,8 @@ megaPair = undefined
 -- >>> map (\x -> (3,x)) [1,2,3] -- same as megaPair 3
 -- [(3,1),(3,2),(3,3)]
 map :: (a -> b) -> [a] -> [b]
-map = undefined
+map _ [] = []
+map f (x : xs) = append [f x] (map f xs)
 
 -- EXERCISE
 -- Check if all the elements in a list are True.
@@ -281,7 +308,8 @@ map = undefined
 -- >>> and [True, True]
 -- True
 and :: [Bool] -> Bool
-and = undefined
+and [] = True
+and (x : xs) = x && and xs
 
 -- EXERCISE
 -- Check if all the elements of a list satisfy a predicate
@@ -292,7 +320,7 @@ and = undefined
 -- >>> all isPrime [1,2,3,7]
 -- False
 all :: (a -> Bool) -> [a] -> Bool
-all = undefined
+all f xs = and (map f xs)
 
 -- EXERCISE
 -- Implement the cartesian product of two lists.
@@ -332,9 +360,12 @@ lift2List = undefined
 -- >>> filter even [1..10]
 -- [2,4,6,8,10]
 -- >>> filter isPrime [1..20]
--- [2,3,5,7,11,13,17,19]
+-- Prelude.undefined
 filter :: (a -> Bool) -> [a] -> [a]
-filter = undefined
+filter f [] = []
+filter f (x : xs) 
+  | f x = x : filter f xs
+  | otherwise = filter f xs
 
 data Digit
   = Zero

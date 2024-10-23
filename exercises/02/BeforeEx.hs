@@ -13,6 +13,7 @@
 module HOF where
 
 import Prelude hiding (const, curry, id, log, map, on, swap, uncurry, until, ($), (.))
+import System.Win32 (xBUTTON1)
 
 -- WARNING:
 -- remind about github classrooms -> in-class && HW00
@@ -38,18 +39,18 @@ import Prelude hiding (const, curry, id, log, map, on, swap, uncurry, until, ($)
 -- (.)
 
 -- TODO: live
-data Tuple a b
+data Tuple a b = MkTuple a b
   deriving (Show)
 
 sumTuple :: Tuple Int Int -> Int
-sumTuple = undefined
+sumTuple (MkTuple x y) = x + y
 
 -- TODO: implement, used in examples
 fstTuple :: Tuple a b -> a
-fstTuple = undefined
+fstTuple (MkTuple x _) = x
 
 sndTuple :: Tuple a b -> b
-sndTuple = undefined
+sndTuple (MkTuple _ y) = y
 
 -- EXERCISE
 -- Take two arguments and return the first.
@@ -62,7 +63,7 @@ sndTuple = undefined
 -- >>> applyTwice (const 42) 1337
 -- 42
 const :: a -> b -> a
-const = undefined
+const x _ = x
 
 -- EXERCISE
 -- Compose two functions, very useful very often
@@ -72,8 +73,9 @@ const = undefined
 -- 23
 -- >>> let f = compose (*5) (+5) in f 4
 -- 45
+
 compose :: (b -> c) -> (a -> b) -> a -> c
-compose = undefined
+compose f h x = f (h x)
 
 -- Play around with the syntax
 (.) :: (b -> c) -> (a -> b) -> a -> c
@@ -87,7 +89,8 @@ compose = undefined
 -- >>> iterateN (*2) 1 10
 -- 1024
 iterateN :: (a -> a) -> a -> Integer -> a
-iterateN = undefined
+iterateN _ x 0 = x
+iterateN f x n =  f (iterateN f x (n - 1))
 
 -- EXERCISE
 -- Swap the two elements of a tuple
@@ -95,7 +98,11 @@ iterateN = undefined
 -- >>> swap $ MkTuple 42 69
 -- MkTuple 69 42
 swap :: Tuple a b -> Tuple b a
-swap = undefined
+swap (MkTuple x y) = MkTuple y x
+
+($) :: (t1 -> t2) -> t1 -> t2
+f $ x = f x
+infixr 0 $
 
 -- EXERCISE
 -- Apply a function to only the first component of a tuple
@@ -103,7 +110,7 @@ swap = undefined
 -- >>> first (*2) $ MkTuple 21 1337
 -- MkTuple 42 1337
 first :: (a -> b) -> Tuple a c -> Tuple b c
-first = undefined
+first f (MkTuple x y) = MkTuple (f x) y
 
 -- EXERCISE
 -- Convert a function operating on a tuple, to one that takes two arguments.
@@ -113,7 +120,7 @@ first = undefined
 -- >>> curry (\(MkTuple x y) -> x * y) 23 3
 -- 69
 curry :: (Tuple a b -> c) -> a -> b -> c
-curry = undefined
+curry f x y = f (MkTuple x y)
 
 -- EXERCISE
 -- Convert a two argument function, to one that takes a Tuple.
@@ -121,7 +128,7 @@ curry = undefined
 -- >>> uncurry (\x y -> x + y) $ MkTuple 23 46
 -- 69
 uncurry :: (a -> b -> c) -> Tuple a b -> c
-uncurry = undefined
+uncurry f (MkTuple x y) = f x y
 
 -- EXERCISE
 -- > p `on` f
@@ -133,7 +140,7 @@ uncurry = undefined
 -- >>> let maxOnSum = max `on` sumTuple in maxOnSum (MkTuple 20 39) (MkTuple 12 34)
 -- 59
 on :: (b -> b -> c) -> (a -> b) -> a -> a -> c
-on = undefined
+on f h x y = f (h x) (h y) 
 
 -- EXERCISE
 -- Execute a function, until the result starts sastifying a given predicate
@@ -141,13 +148,16 @@ on = undefined
 -- >>> until (>1000) (*7) 4
 -- 1372
 until :: (a -> Bool) -> (a -> a) -> a -> a
-until = undefined
+until f h x
+  | f x = x
+  | otherwise = until f h (h x)
 
 -- EXERCISE
 -- Apply two different functions to the two different arguments of a tuple
 -- Think about what the type should be.
--- mapTuple :: ???
--- mapTuple = undefined
+
+mapTuple :: (a -> b) -> (c -> d) -> Tuple a c -> Tuple b d
+mapTuple f h (MkTuple x y) = MkTuple (f x) (h y)
 
 data Nat
   = Zero
@@ -157,20 +167,18 @@ data Nat
 -- EXERCISE
 -- Look at addNat and multNat from last time.
 --
--- addNat :: Nat -> Nat -> Nat
--- addNat Zero m = m
--- addNat (Succ n) m = Succ (addNat n m)
+addNat :: Nat -> Nat -> Nat
+addNat Zero m = m
+addNat (Succ n) m = Succ (addNat n m)
 --
--- multNat :: Nat -> Nat -> Nat
--- multNat Zero _ = Zero
--- multNat (Succ n) m = addNat m (multNat n m)
+multNat :: Nat -> Nat -> Nat
+multNat Zero _ = Zero
+multNat (Succ n) m = addNat m (multNat n m)
 --
 -- They look very similar.
 -- Can you implement a general enough higher-order function (called foldNat here), such that you can then use to
 -- implement both of addNat and multNat by passing suitable arguments? What are those arguments?
 --
--- foldNat :: ???
--- foldNat = ???
 --
 -- If your function is "good enough" you should also be able to implement exponentiation using it.
 -- expNat :: Nat -> Nat -> Nat
