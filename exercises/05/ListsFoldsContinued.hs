@@ -19,6 +19,8 @@
 module ListsFoldsContinued where
 
 import Prelude hiding (Either(..), reverse, zip, zipWith, null)
+import Distribution.SPDX (LicenseExceptionId(DigiRule_FOSS_exception))
+import Language.Haskell.TH.Syntax (nothingName)
 
 -- WARNING:
 -- second homework
@@ -116,12 +118,24 @@ data Digit
 -- EXAMPLES
 -- >>> parseDigit '6'
 -- Just Six
--- >>> parseDigit '9'
--- Just Nine
+-- >>> parseDigit '4'
+-- Just Four
 -- >>> parseDigit 'c'
 -- Nothing
 parseDigit :: Char -> Maybe Digit
-parseDigit = undefined
+parseDigit n = case n of
+  '0' -> Just DZero
+  '1' -> Just One
+  '2' -> Just Two
+  '3' -> Just Three
+  '4' -> Just Four
+  '5' -> Just Five
+  '6' -> Just Six
+  '7' -> Just Seven
+  '8' -> Just Eight
+  '9' -> Just Nine
+  _ -> Nothing
+
 
 -- EXERCISE
 -- See if all the values in a list xs are Just, returning Just xs only if they are.
@@ -133,14 +147,20 @@ parseDigit = undefined
 -- Just []
 -- >>> validateList [Just 42, Just 6, Just 9]
 -- Just [42,6,9]
--- >>> validateList [Nothing, Just 6, Just 9]
+-- >>> validateList [Just 1, Nothing, Just 9]
 -- Nothing
 -- >>> validateList [Just 42, Nothing, Just 9]
 -- Nothing
 -- >>> validateList [Just 42, Just 6, Nothing]
 -- Nothing
+
 validateList :: [Maybe a] -> Maybe [a]
-validateList = undefined
+validateList = foldr helperVal (Just [])
+  where
+    helperVal :: Maybe a -> Maybe [a] -> Maybe [a]
+    helperVal Nothing _ = Nothing
+    helperVal (Just _) Nothing = Nothing
+    helperVal (Just x) (Just ys) = Just (x : ys)
 
 -- EXERCISE
 -- You often have a collection (list) of things, for each of which you want to
@@ -161,7 +181,7 @@ validateList = undefined
 -- >>> traverseListMaybe (8 `safeDiv`) [3,2]
 -- Just [2,4]
 traverseListMaybe :: (a -> Maybe b) -> [a] -> Maybe [b]
-traverseListMaybe = undefined
+traverseListMaybe f xs = validateList (map f xs)
 
 -- EXERCISE
 -- Convert a list of digits to a number.
@@ -172,17 +192,18 @@ traverseListMaybe = undefined
 -- Assume that the empty list converts to 0.
 -- HINT: It might be easier to first reverse the list and then operate on it with a helper.
 -- EXAMPLES
--- >>> digitsToNumber [Six,Nine]
--- 69
+-- >>> digitsToNumber [Seven,One]
+-- 71
 -- >>> digitsToNumber [One,Two,DZero]
 -- 120
 -- >>> digitsToNumber [DZero,One,Two,DZero]
 -- 120
 digitsToNumber :: [Digit] -> Integer
-digitsToNumber = undefined
+digitsToNumber = go 0
   where
-    -- for some reason, we often call helpers in haskell "go", as in "go do the thing"
-    go = undefined
+    go :: Integer -> [Digit] -> Integer
+    go result [] = result
+    go result (x : xs) = go ((result * 10) + fromIntegral (fromEnum x)) xs
 
 -- EXERCISE
 -- Combine the previous functions to parse a number.
@@ -191,8 +212,8 @@ digitsToNumber = undefined
 -- Just 0
 -- >>> parseNumber "3"
 -- Just 3
--- >>> parseNumber "69"
--- Just 69
+-- >>> parseNumber "6966"
+-- Just 6966
 -- >>> parseNumber "0123"
 -- Just 123
 -- >>> parseNumber "blabla"
@@ -200,7 +221,8 @@ digitsToNumber = undefined
 -- >>> parseNumber "133t"
 -- Nothing
 parseNumber :: String -> Maybe Integer
-parseNumber = undefined
+parseNumber str = maybeMap digitsToNumber (traverseListMaybe parseDigit str)
+
 
 -- EXERCISE
 -- Notice how in parseNumber, in the Nothing case we returned Nothing,
@@ -214,7 +236,8 @@ parseNumber = undefined
 -- >>> maybeMap succ Nothing
 -- Nothing
 maybeMap :: (a -> b) -> Maybe a -> Maybe b
-maybeMap = undefined
+maybeMap f (Just x) = Just (f x)
+maybeMap _ Nothing = Nothing
 
 -- EXERCISE
 -- Reverse a list using foldl.
@@ -223,7 +246,7 @@ maybeMap = undefined
 -- >>> reverse' [1,2,3]
 -- [3,2,1]
 reverse :: [a] -> [a]
-reverse = undefined
+reverse = foldl (flip (:)) []
 
 -- EXERCISE
 -- A smaller version of one of the tasks from a FP exam.
@@ -259,11 +282,18 @@ data Instruction
 -- >>> runMachine [Push 7, Push 2, Oper (+), Oper (+)]
 -- Nothing
 runMachine :: [Instruction] -> Maybe [Integer]
-runMachine = undefined
+runMachine = foldl runInstruction (Just [])
   where
     -- Given the current stack machine state, execute an instruction.
     runInstruction :: Maybe [Integer] -> Instruction -> Maybe [Integer]
-    runInstruction = undefined
+    runInstruction Nothing _ = Nothing
+    runInstruction (Just xs) op = case op of
+      Push a -> Just (a : xs)
+      Map f -> Just (map f xs)
+      Oper f -> case xs of
+        (x : y : z) -> Just (f x y : z)
+        _ -> Nothing 
+
 
 -- EXERCISE
 -- Look at the recursor for @Nat@s - @foldNat@. In there we replaced @Nat@'s constructors with "things".

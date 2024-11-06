@@ -127,7 +127,7 @@ natToInteger n = foldNat 0 (\x -> succ x) n
 -- >>> natToInteger $ expNat (integerToNat 2) (integerToNat 10)
 -- 1024
 expNat :: Nat -> Nat -> Nat
-expNat n k = foldNat (Succ Zero) (\x -> multNat x n) k
+expNat n k = foldNat (Succ Zero) (`multNat` n) k
 
 ---------------
 -- EXERCISES --
@@ -140,146 +140,146 @@ expNat n k = foldNat (Succ Zero) (\x -> multNat x n) k
 -- False
 -- >>> and [True, True, False]
 -- False
-and :: [Bool] -> Bool
-and xs = foldr True (\x y -> x && y) xs
+-- and :: [Bool] -> Bool
+-- and xs = foldr True (\x y -> x && y) xs
 
--- EXERCISE
--- Implement or using foldr
--- EXAMPLES
--- >>> or [False, True]
--- True
--- >>> or [True, True]
--- True
-or :: [Bool] -> Bool
-or xs = foldr False (\x y -> x || y) xs
+-- -- EXERCISE
+-- -- Implement or using foldr
+-- -- EXAMPLES
+-- -- >>> or [False, True]
+-- -- True
+-- -- >>> or [True, True]
+-- -- True
+-- or :: [Bool] -> Bool
+-- or xs = foldr False (\x y -> x || y) xs
 
--- EXERCISE
--- Implement length using foldr
--- EXAMPLES
--- >>> length [1,2,8]
--- 3
--- >>> length [1]
--- 1
-length :: [a] -> Integer
-length xs = foldr 0 (\x l -> l + 1) xs
+-- -- EXERCISE
+-- -- Implement length using foldr
+-- -- EXAMPLES
+-- -- >>> length [1,2,8]
+-- -- 3
+-- -- >>> length [1]
+-- -- 1
+-- length :: [a] -> Integer
+-- length xs = foldr 0 (\x l -> l + 1) xs
 
--- EXERCISE
--- Implement (++) using foldr
--- >>> [1,2,3] ++ [4,5,6,7]
--- [1,2,3,4,5,6,7]
-(++) :: [a] -> [a] -> [a]
-(++) xs ys = foldr ys (\x y -> x : y) xs
+-- -- EXERCISE
+-- -- Implement (++) using foldr
+-- -- >>> [1,2,3] ++ [4,5,6,7]
+-- -- [1,2,3,4,5,6,7]
+-- (++) :: [a] -> [a] -> [a]
+-- (++) xs ys = foldr ys (\x y -> x : y) xs
 
--- EXERCISE
--- Implement concat using foldr
--- >>> concat [[1,2,3], [42,69], [5,7,8,9], [1]]
--- [1,2,3,42,69,5,7,8,9,1]
--- >>> concat [[1,2,3], [], [5,7,8,9], [10,11,12,13]]
--- [1,2,3,5,7,8,9,10,11,12,13]
--- >>> concat []
--- []
-concat :: [[a]] -> [a]
-concat xs = foldr [] (\x y -> x ++ y) xs
+-- -- EXERCISE
+-- -- Implement concat using foldr
+-- -- >>> concat [[1,2,3], [42,69], [5,7,8,9], [1]]
+-- -- [1,2,3,42,69,5,7,8,9,1]
+-- -- >>> concat [[1,2,3], [], [5,7,8,9], [10,11,12,13]]
+-- -- [1,2,3,5,7,8,9,10,11,12,13]
+-- -- >>> concat []
+-- -- []
+-- concat :: [[a]] -> [a]
+-- concat xs = foldr [] (\x y -> x ++ y) xs
 
--- EXERCISE
--- Implement reverse using foldr (it's fine to do this in O(n^2)
--- EXAMPLES
--- >>> reverse [1,2,3,4,5,6]
--- [6,5,4,3,2,1]
--- >>> reverse []
--- []
-reverse :: [a] -> [a]
-reverse xs = foldr [] (\x y -> y ++ [x]) xs
+-- -- EXERCISE
+-- -- Implement reverse using foldr (it's fine to do this in O(n^2)
+-- -- EXAMPLES
+-- -- >>> reverse [1,2,3,4,5,6]
+-- -- [6,5,4,3,2,1]
+-- -- >>> reverse []
+-- -- []
+-- reverse :: [a] -> [a]
+-- reverse xs = foldr [] (\x y -> y ++ [x]) xs
 
--- EXERCISE
--- Implement map using foldr
--- EXAMPLES
--- >>> map succ [1,2,3]
--- [2,3,4]
--- >>> map (\x -> x * x) [1,2,3,4,5] -- same as squareList
--- [1,4,9,16,25]
--- >>> map (\x -> (3,x)) [1,2,3] -- same as megaPair 3
--- [(3,1),(3,2),(3,3)]
-map :: (a -> b) -> [a] -> [b]
-map f xs = foldr [] (\x y -> f x : y) xs
+-- -- EXERCISE
+-- -- Implement map using foldr
+-- -- EXAMPLES
+-- -- >>> map succ [1,2,3]
+-- -- [2,3,4]
+-- -- >>> map (\x -> x * x) [1,2,3,4,5] -- same as squareList
+-- -- [1,4,9,16,25]
+-- -- >>> map (\x -> (3,x)) [1,2,3] -- same as megaPair 3
+-- -- [(3,1),(3,2),(3,3)]
+-- map :: (a -> b) -> [a] -> [b]
+-- map f xs = foldr [] (\x y -> f x : y) xs
 
--- EXERCISE
--- Implement filter using foldr
--- EXAMPLES
--- >>> even 2
--- True
--- >>> even 3
--- False
--- >>> filter even [1..10]
--- [2,4,6,8,10]
--- >>> filter isPrime [1..20]
--- Variable not in scope: isPrime :: a_aCfZ[sk:1] -> Bool
-filter :: (a -> Bool) -> [a] -> [a]
-filter f xs = foldr [] (\x y -> if f x then x : y else y) xs
+-- -- EXERCISE
+-- -- Implement filter using foldr
+-- -- EXAMPLES
+-- -- >>> even 2
+-- -- True
+-- -- >>> even 3
+-- -- False
+-- -- >>> filter even [1..10]
+-- -- [2,4,6,8,10]
+-- -- >>> filter isPrime [1..20]
+-- -- Variable not in scope: isPrime :: a_aCfZ[sk:1] -> Bool
+-- filter :: (a -> Bool) -> [a] -> [a]
+-- filter f xs = foldr [] (\x y -> if f x then x : y else y) xs
 
--- EXERCISE
--- Implement null using foldr
--- EXAMPLES
--- >>> null []
--- True
--- >>> null [1]
--- False
-null :: [a] -> Bool
-null xs = foldr True (\x y -> False) xs
+-- -- EXERCISE
+-- -- Implement null using foldr
+-- -- EXAMPLES
+-- -- >>> null []
+-- -- True
+-- -- >>> null [1]
+-- -- False
+-- null :: [a] -> Bool
+-- null xs = foldr True (\x y -> False) xs
 
--- EXERCISE
--- Implement headMaybe using foldr
--- EXAMPLES
--- >>> headMaybe []
--- Nothing
--- >>> headMaybe [4,2,3]
--- Just 4
-headMaybe :: [a] -> Maybe a
-headMaybe xs = foldr Nothing (\x y -> Just x) xs
+-- -- EXERCISE
+-- -- Implement headMaybe using foldr
+-- -- EXAMPLES
+-- -- >>> headMaybe []
+-- -- Nothing
+-- -- >>> headMaybe [4,2,3]
+-- -- Just 4
+-- headMaybe :: [a] -> Maybe a
+-- headMaybe xs = foldr Nothing (\x y -> Just x) xs
 
--- EXERCISE
--- Implement a function that splits a list into two based on a predicate p
--- those that satisfy p and those that don't.
--- EXAMPLES
--- >>> partition (<3) [1..10]
--- ([1,2],[3,4,5,6,7,8,9,10])
--- >>> partition even [1..10]
--- ([2,4,6,8,10],[1,3,5,7,9])
-partition :: (a -> Bool) -> [a] -> ([a], [a])
-partition f xs = (filter f xs, filter (not . f) xs)
+-- -- EXERCISE
+-- -- Implement a function that splits a list into two based on a predicate p
+-- -- those that satisfy p and those that don't.
+-- -- EXAMPLES
+-- -- >>> partition (<3) [1..10]
+-- -- ([1,2],[3,4,5,6,7,8,9,10])
+-- -- >>> partition even [1..10]
+-- -- ([2,4,6,8,10],[1,3,5,7,9])
+-- partition :: (a -> Bool) -> [a] -> ([a], [a])
+-- partition f xs = (filter f xs, filter (not . f) xs)
 
 
--- EXERCISE
--- Implement partition using foldr
--- EXAMPLES
--- >>> partitionfoldr (<5) [1..10]
--- ([1,2,3,4],[5,6,7,8,9,10])
--- >>> partitionfoldr even [1..10]
--- ([2,4,6,8,10],[1,3,5,7,9])
-partitionfoldr :: (a -> Bool) -> [a] -> ([a], [a])
-partitionfoldr f xs = foldr ([],[]) (\x (y, z) -> if f x then (x : y, z) else (y, x : z)) xs
+-- -- EXERCISE
+-- -- Implement partition using foldr
+-- -- EXAMPLES
+-- -- >>> partitionfoldr (<5) [1..10]
+-- -- ([1,2,3,4],[5,6,7,8,9,10])
+-- -- >>> partitionfoldr even [1..10]
+-- -- ([2,4,6,8,10],[1,3,5,7,9])
+-- partitionfoldr :: (a -> Bool) -> [a] -> ([a], [a])
+-- partitionfoldr f xs = foldr ([],[]) (\x (y, z) -> if f x then (x : y, z) else (y, x : z)) xs
 
--- EXERCISE
--- Implement validateList using foldr.
--- EXAMPLES
--- >>> validateList []
--- Just []
--- >>> validateList [Just 42, Nothing, Just 9]
--- Nothing
--- >>> validateList [Just 6, Just 9]
--- Just [6,9]
--- >>> validateList [Just 42, Nothing, Just 9]
--- Nothing
--- >>> validateList [Just 42, Just 6, Nothing]
--- Nothing
+-- -- EXERCISE
+-- -- Implement validateList using foldr.
+-- -- EXAMPLES
+-- -- >>> validateList []
+-- -- Just []
+-- -- >>> validateList [Just 42, Nothing, Just 9]
+-- -- Nothing
+-- -- >>> validateList [Just 6, Just 9]
+-- -- Just [6,9]
+-- -- >>> validateList [Just 42, Nothing, Just 9]
+-- -- Nothing
+-- -- >>> validateList [Just 42, Just 6, Nothing]
+-- -- Nothing
 
-helperVal :: Maybe a -> Maybe [a] -> Maybe [a]
-helperVal Nothing _ = Nothing
-helperVal (Just x) Nothing = Nothing
-helperVal (Just x) (Just xs) = Just (x : xs)
+-- helperVal :: Maybe a -> Maybe [a] -> Maybe [a]
+-- helperVal Nothing _ = Nothing
+-- helperVal (Just x) Nothing = Nothing
+-- helperVal (Just x) (Just xs) = Just (x : xs)
 
-validateList :: [Maybe a] -> Maybe [a]
-validateList xs = foldr (Just []) (\x y -> helperVal x y) xs   
+-- validateList :: [Maybe a] -> Maybe [a]
+-- validateList xs = foldr (Just []) (\x y -> helperVal x y) xs   
 
 -- EXERCISE
 -- Look at the recursor for nats - foldNat. In there we replaced @Nat@'s constructors with "things".
