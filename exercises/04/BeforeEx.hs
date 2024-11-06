@@ -35,7 +35,7 @@ import Prelude hiding (all, and, concat, drop, filter, foldr, length, map, null,
 
 data Nat
   = Zero
-  | Suc Nat
+  | Succ Nat
   deriving (Show)
 
 -- TODO: implement foldNat, required
@@ -44,7 +44,7 @@ foldNat = undefined
 
 integerToNat :: Integer -> Nat
 integerToNat 0 = Zero
-integerToNat n = Suc $ integerToNat $ n - 1
+integerToNat n = Succ $ integerToNat $ n - 1
 
 -- show how we abstract
 -- addNat multNat, generalise required for @natToInteger@
@@ -68,7 +68,7 @@ integerToNat n = Suc $ integerToNat $ n - 1
 -- EXERCISE
 -- Implement natToInteger using foldNat.
 -- EXAMPLES
--- >>> natToInteger $ Suc $ Suc $ Suc Zero
+-- >>> natToInteger $ Succ $ Succ $ Succ Zero
 -- 3
 natToInteger :: Nat -> Integer
 natToInteger = undefined
@@ -283,7 +283,7 @@ validateList = undefined
 --
 -- EXAMPLES
 -- >>> iterateToNat (\f x -> f (f (f x)))
--- Suc (Suc (Suc Zero))
+-- Succ (Succ (Succ Zero))
 iterateToNat :: (forall a. (a -> a) -> a -> a) -> Nat
 iterateToNat _f = undefined
 
@@ -317,7 +317,7 @@ zero _f v = v
 -- >>> iterateToNat zero
 -- Zero
 -- >>> iterateToNat $ suc $ suc zero
--- Suc (Suc Zero)
+-- Succ (Succ Zero)
 -- >>> natToInteger $ iterateToNat $ suc $ natToIterate $ integerToNat 5
 -- 6
 suc :: Natural -> Natural
@@ -327,9 +327,9 @@ suc _n = undefined
 -- We can also add these. Here we need to think about how to add f n times to another Natural.
 -- EXAMPLES
 -- >>> iterateToNat $ add (suc (suc zero)) zero
--- Suc (Suc Zero)
+-- Succ (Succ Zero)
 -- >>> iterateToNat $ add (suc (suc zero)) (suc (suc (suc zero)))
--- Suc (Suc (Suc (Suc (Suc Zero))))
+-- Succ (Succ (Succ (Succ (Succ Zero))))
 -- >>> natToInteger $ iterateToNat $ add (suc (suc zero)) (suc (suc (suc (suc zero))))
 -- 6
 add :: Natural -> Natural -> Natural
@@ -342,7 +342,7 @@ add _n _m = undefined
 -- >>> iterateToNat $ mult zero (suc (suc zero))
 -- Zero
 -- >>> iterateToNat $ mult (suc (suc zero)) (suc (suc zero))
--- Suc (Suc (Suc (Suc Zero)))
+-- Succ (Succ (Succ (Succ Zero)))
 -- >>> natToInteger $ iterateToNat $ mult (suc (suc zero)) (suc (suc (suc zero)))
 -- 6
 mult :: Natural -> Natural -> Natural

@@ -16,6 +16,8 @@
 {-# HLINT ignore "Eta reduce" #-}
 {-# HLINT ignore "Use const" #-}
 {-# HLINT ignore "Avoid lambda" #-}
+{-# HLINT ignore "Use product" #-}
+{-# HLINT ignore "Use sum" #-}
 
 module Folds where
 
@@ -80,22 +82,22 @@ multNat'' n m = foldNat 0 (+ m) n
 -- >>> addNat' (Succ $ Succ Zero) (Succ Zero)
 -- Succ (Succ (Succ Zero))
 
-foldr :: b -> (a -> b -> b) -> [a] -> b
-foldr bazovo rekursivno [] = bazovo
-foldr bazovo rekursivno (x : xs) = rekursivno x $ foldr bazovo rekursivno xs
+foldr :: (a -> b -> b) -> b -> [a] -> b
+foldr rekursivno bazovo [] = bazovo
+foldr rekursivno bazovo (x : xs) = rekursivno x $ foldr rekursivno bazovo xs
 
 length' :: [a] -> Integer
 -- length' xs = foldr 0 (\x l -> 1 + l) xs
-length' = foldr 0 (const succ)
+length' = foldr (const succ) 0
 
 -- >>> (const 5) 6
 -- 5
 
 sum' :: [Integer] -> Integer
-sum' = foldr 0 (+)
+sum' = foldr (+) 0
 
 product' :: [Integer] -> Integer
-product' = foldr 1 (*)
+product' = foldr (*) 1
 
 -- >>> product' [1,2,3,4]
 -- 24
@@ -337,7 +339,7 @@ validateList xs = foldr (Just []) (\x y -> helperVal x y) xs
 --
 -- EXAMPLES
 -- >>> iterateToNat (\f x -> f (f (f x)))
--- Suc (Suc (Suc Zero))
+-- Succ (Succ (Succ Zero))
 iterateToNat :: (forall a. (a -> a) -> a -> a) -> Nat
 iterateToNat _f = undefined
 
@@ -371,7 +373,7 @@ zero _f v = v
 -- >>> iterateToNat zero
 -- Zero
 -- >>> iterateToNat $ suc $ suc zero
--- Suc (Suc Zero)
+-- Succ (Succ Zero)
 -- >>> natToInteger $ iterateToNat $ suc $ natToIterate $ integerToNat 5
 -- 6
 suc :: Natural -> Natural
@@ -381,9 +383,9 @@ suc _n = undefined
 -- We can also add these. Here we need to think about how to add f n times to another Natural.
 -- EXAMPLES
 -- >>> iterateToNat $ add (suc (suc zero)) zero
--- Suc (Suc Zero)
+-- Succ (Succ Zero)
 -- >>> iterateToNat $ add (suc (suc zero)) (suc (suc (suc zero)))
--- Suc (Suc (Suc (Suc (Suc Zero))))
+-- Succ (Succ (Succ (Succ (Succ Zero))))
 -- >>> natToInteger $ iterateToNat $ add (suc (suc zero)) (suc (suc (suc (suc zero))))
 -- 6
 add :: Natural -> Natural -> Natural
@@ -396,7 +398,7 @@ add _n _m = undefined
 -- >>> iterateToNat $ mult zero (suc (suc zero))
 -- Zero
 -- >>> iterateToNat $ mult (suc (suc zero)) (suc (suc zero))
--- Suc (Suc (Suc (Suc Zero)))
+-- Succ (Succ (Succ (Succ Zero)))
 -- >>> natToInteger $ iterateToNat $ mult (suc (suc zero)) (suc (suc (suc zero)))
 -- 6
 mult :: Natural -> Natural -> Natural
