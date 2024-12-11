@@ -105,7 +105,7 @@ instance MyFunctor (Either e) where
 -- [1,2,3]
 -- [3,4,5]
 
-newtype State s a = MkState {run :: s -> (s, a)}
+newtype State s a = MkState {runState :: s -> (s, a)}
 
 -- EXERCISE
 -- Ways to run state actions

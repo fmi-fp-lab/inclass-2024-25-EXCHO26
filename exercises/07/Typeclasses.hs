@@ -12,6 +12,8 @@
 module Typeclasses where
 
 import Prelude hiding (Monoid (..), Semigroup (..), all, any, find, fold, foldMap, lookup, mconcat, mtimes, reverse)
+import Data.Binary.Builder (append)
+import Distribution.Simple (UserHooks(instHook))
 
 -- TODO:
 -- motivation: lookup, sort, insert
@@ -94,9 +96,9 @@ instance Semigroup String where
 -- >>> "hello " <> "banica"
 -- "hello banica"
 
-instance Monoid String where
-  mempty :: String
-  mempty = ""
+-- instance Monoid String where
+--   mempty :: String
+--   mempty = ""
 
 -- >>> mempty <> "Banica"
 -- "Banica"
@@ -106,14 +108,14 @@ Implement (<=), called @leq@ here, using the compare function:
 Open up ghc and execute @:t compare@ to see its type.
 EXAMPLES
 >>> leq 3 5
-True
+WAS True
 >>> leq 5 5
-True
+WAS True
 >>> leq 6 5
-False
+WAS False
 -}
 leq :: (Ord a) => a -> a -> Bool
-leq = undefined
+leq x y = x <= y
 
 {- | EXERCISE
 Implement compare using (<=)
@@ -128,19 +130,19 @@ GT
 LT
 -}
 compare' :: (Ord a) => a -> a -> Ordering
-compare' = undefined
+compare' = compare
 
 {- | EXERCISE
 Given a function to convert a values, compare them using the ordering in b
 This function is useful partially applied, when we have.
 sortBy :: (a -> a -> Ordering) -> [a] -> [a]
->>> comparing fst (5, 0) (4, 69)
+>>> comparing snd (5, 0) (4, 69)
 GT
 >>> comparing snd (5, 0) (4, 69)
 LT
 -}
 comparing :: (Ord b) => (a -> b) -> a -> a -> Ordering
-comparing = undefined
+comparing f x y = compare' (f x) (f y)
 
 data Nat = Zero | Succ Nat
  deriving (Show)
@@ -151,6 +153,18 @@ instance Semigroup Nat where
 instance Monoid Nat where
 -}
 
+instance Semigroup Nat where
+  (<>) :: Nat -> Nat -> Nat
+  (<>) Zero m = m
+  (<>) (Succ n) m = Succ (n <> m)
+
+instance Monoid Nat where
+  mempty :: Nat
+  mempty = Zero
+
+-- >>> (Succ Zero) <> mempty
+-- Succ Zero
+
 {- | EXERCISE
 Implement a Monoid instance for [a]
 Note how regardless of what a is, [a] is always a Monoid.
@@ -159,6 +173,15 @@ And indeed, lists are "the free Monoid"
 instance Semigroup [a] where
 instance Monoid [a] where
 -}
+
+instance Semigroup [a] where
+  (<>) :: [a] -> [a] -> [a]
+  (<>) [] y = y
+  (<>) (x : xs) y = x : (xs <> y) 
+
+instance Monoid [a] where
+  mempty :: [a]
+  mempty = []
 
 {- | EXERCISE
 Implement a monoid instance for the Any type, with the following semantics:
@@ -169,6 +192,10 @@ newtype Any = MkAny {getAny :: Bool}
 
 -- instance Semigroup Any where
 -- instance Monoid Any where
+
+instance Semigroup Any where
+  (<>) :: Any -> Any -> Any
+  (<>) (MkAny x) (MkAny y)
 
 {- | EXERCISE
 Implement a monoid instance for the All type, with the following semantics:
